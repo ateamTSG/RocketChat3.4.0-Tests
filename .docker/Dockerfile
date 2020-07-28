@@ -8,15 +8,9 @@ RUN groupadd -g 65533 -r rocketchat \
     && mkdir -p /app/uploads \
     && chown rocketchat:rocketchat /app/uploads \
     && apt-get update \
-    && apt-get install -y --no-install-recommends fontconfig \
-    && apt-get install curl -y \
-    && curl https://install.meteor.com | sh
+    && apt-get install -y --no-install-recommends fontconfig
 
-# meteor build
-RUN meteor npm install \
-    && meteor build --server-only --directory /tmp/build --allow-superuser
-    
-ADD /tmp/build /app
+ADD . /app
 
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-get install -y --no-install-recommends g++ make python ca-certificates \
