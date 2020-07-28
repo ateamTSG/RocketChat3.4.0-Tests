@@ -19,6 +19,7 @@ COPY . /tmp/app
 WORKDIR /tmp/app
 
 # meteor npm install and build
+RUN chmod -R 700 /.meteor/local
 RUN rm -rf node_modules/*
 RUN rm -rf .meteor/local/*
 RUN meteor npm install \
