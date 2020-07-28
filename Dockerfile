@@ -19,7 +19,7 @@ COPY . /tmp/app
 WORKDIR /tmp/app
 
 # meteor npm install and build
-RUN chmod 777 /tmp/app
+RUN meteor npm cache clear --force
 RUN meteor npm install
 RUN meteor build --server-only --directory /tmp/build
     
