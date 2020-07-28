@@ -19,8 +19,8 @@ COPY . /tmp/app
 WORKDIR /tmp/app
 
 # meteor npm install and build
-RUN meteor update --packages-only
-RUN meteor npm ci
+RUN file="$(ls -1 /tmp/dir)" && echo $file
+RUN meteor npm install
 RUN meteor build --server-only --directory /tmp/build
     
 COPY /tmp/build /app
