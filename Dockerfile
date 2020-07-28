@@ -6,8 +6,6 @@ ENV METEOR_ALLOW_SUPERUSER=true
 
 # meteor npm install and build
 RUN meteor --version
-RUN npm --version
-RUN nodejs --version
 RUN meteor npm install
 RUN meteor build --server-only --directory /tmp/build
     
