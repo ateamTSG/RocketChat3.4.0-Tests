@@ -10,6 +10,8 @@ RUN groupadd -g 65533 -r rocketchat \
     && apt-get update \
     && apt-get install -y --no-install-recommends fontconfig \
     && apt-get install curl -y \
+    && pwd \
+    && ll \
     && curl https://install.meteor.com | sh
 
 # meteor build
