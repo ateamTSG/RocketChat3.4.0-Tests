@@ -1,16 +1,22 @@
 FROM node:12.16.1-buster-slim
 
-LABEL maintainer="buildmaster@rocket.chat"
+LABEL maintainer="lior@haim.hagever"
 
-# dependencies
+# dependencies and meteor install
 RUN groupadd -g 65533 -r rocketchat \
     && useradd -u 65533 -r -g rocketchat rocketchat \
     && mkdir -p /app/uploads \
     && chown rocketchat:rocketchat /app/uploads \
     && apt-get update \
-    && apt-get install -y --no-install-recommends fontconfig
+    && apt-get install -y --no-install-recommends fontconfig \
+    && apt-get install curl -y \
+    && curl https://install.meteor.com | sh
 
-ADD . /app
+# meteor build
+RUN meteor npm install \
+    && meteor build --server-only --directory /tmp/build --allow-superuser
+    
+ADD /tmp/build /app
 
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-get install -y --no-install-recommends g++ make python ca-certificates \
