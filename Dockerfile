@@ -1,18 +1,8 @@
-FROM node:12.16.1-buster-slim
+FROM geoffreybooth/meteor-base:1.10.2 as meteor
 
 LABEL maintainer="lior@haim.hagever"
 
 ENV METEOR_ALLOW_SUPERUSER=true
-
-# dependencies and meteor install
-RUN groupadd -g 65533 -r rocketchat \
-    && useradd -u 65533 -r -g rocketchat rocketchat \
-    && mkdir -p /app/uploads \
-    && chown rocketchat:rocketchat /app/uploads \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends fontconfig \
-    && apt-get install curl -y \
-    && curl https://install.meteor.com | sh
 
 # meteor npm install and build
 RUN meteor --version
@@ -21,7 +11,17 @@ RUN nodejs --version
 RUN meteor npm install
 RUN meteor build --server-only --directory /tmp/build
     
-COPY /tmp/build /app
+FROM node:12.16.1-buster-slim as app
+
+# dependencies and meteor install
+RUN groupadd -g 65533 -r rocketchat \
+    && useradd -u 65533 -r -g rocketchat rocketchat \
+    && mkdir -p /app/uploads \
+    && chown rocketchat:rocketchat /app/uploads \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends fontconfig 
+
+COPY --from=meteor /tmp/build /app
 
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-get install -y --no-install-recommends g++ make python ca-certificates \
