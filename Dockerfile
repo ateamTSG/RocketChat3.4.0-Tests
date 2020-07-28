@@ -19,7 +19,7 @@ COPY . /tmp/app
 WORKDIR /tmp/app
 
 # meteor npm install and build
-RUN file="$(ls -1 /tmp/dir)" && echo $file
+RUN file="$(ls -1 .)" && echo $file
 RUN meteor npm install
 RUN meteor build --server-only --directory /tmp/build
     
