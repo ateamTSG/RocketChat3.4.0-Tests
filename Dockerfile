@@ -12,7 +12,7 @@ RUN groupadd -g 65533 -r rocketchat \
     && apt-get install curl -y \
     && curl https://install.meteor.com | sh
 
-# meteor build
+# meteor npm install and build
 RUN meteor npm install \
     && meteor build --server-only --directory /tmp/build --allow-superuser
     
