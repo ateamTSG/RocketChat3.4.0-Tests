@@ -14,11 +14,11 @@ RUN groupadd -g 65533 -r rocketchat \
     && apt-get install curl -y \
     && curl https://install.meteor.com | sh
 
-COPY . /tmp/app
-
-WORKDIR /tmp/app
-
 # meteor npm install and build
+RUN meteor --version
+RUN npm --version
+RUN nodejs --version
+RUN meteor npm install
 RUN meteor build --server-only --directory /tmp/build
     
 COPY /tmp/build /app
