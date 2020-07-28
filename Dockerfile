@@ -16,9 +16,12 @@ RUN groupadd -g 65533 -r rocketchat \
 
 COPY . /tmp/app
 
+WORKDIR /tmp/app
+
 # meteor npm install and build
-RUN cd /tmp/app \
-    && meteor npm install \
+RUN rm -rf node_modules/*
+RUN rm -rf .meteor/local/*
+RUN meteor npm install \
     && meteor build --server-only --directory /tmp/build
     
 COPY /tmp/build /app
