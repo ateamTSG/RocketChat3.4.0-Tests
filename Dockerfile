@@ -1,11 +1,13 @@
 # The tag here should match the Meteor version of your app, per .meteor/release
 FROM geoffreybooth/meteor-base:1.10.2
 
+# Copy app package.json and package-lock.json into container
+COPY ./package*.json $APP_SOURCE_FOLDER/
+
+RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
+
 # Copy app source into container
 COPY . $APP_SOURCE_FOLDER/
-
-#RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
-RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
 
 RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 
