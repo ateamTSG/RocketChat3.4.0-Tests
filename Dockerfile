@@ -1,14 +1,10 @@
 # The tag here should match the Meteor version of your app, per .meteor/release
 FROM geoffreybooth/meteor-base:1.10.2
 
-# Copy app package.json and package-lock.json into container
-COPY ./package*.json $APP_SOURCE_FOLDER/
-
-RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
-
 # Copy app source into container
 COPY . $APP_SOURCE_FOLDER/
 
+RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
 RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 
 # Use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html; this is expected for Meteor 1.10.2
@@ -28,7 +24,9 @@ RUN groupadd -g 65533 -r rocketchat \
     && mkdir -p /$APP_BUNDLE_FOLDER/uploads \
     && chown rocketchat:rocketchat /$APP_BUNDLE_FOLDER/uploads \
     && apt-get update \
-    && apt-get install -y --no-install-recommends fontconfig
+    && apt-get install -y --no-install-recommends fontconfig \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh
 
