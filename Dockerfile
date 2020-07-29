@@ -4,11 +4,19 @@ FROM geoffreybooth/meteor-base:1.10.2 as meteorbase
 # Copy app source into container
 COPY . $APP_SOURCE_FOLDER/
 
+# Instll npm dependencies
+WORKDIR $APP_SOURCE_FOLDER
+RUN meteor npm install
+
+# Build meteor bundle
+RUN mkdir --parents "$APP_BUNDLE_FOLDER"
+RUN meteor build --directory "$APP_BUNDLE_FOLDER" --server-only
+
 #RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh to perform meteor npm install 
-RUN bash "$SCRIPTS_FOLDER"/build-app-npm-dependencies.sh
+#RUN bash "$SCRIPTS_FOLDER"/build-app-npm-dependencies.sh
 
 #RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh to perform meteor build
-RUN bash "$SCRIPTS_FOLDER"/build-meteor-bundle.sh
+#RUN bash "$SCRIPTS_FOLDER"/build-meteor-bundle.sh
 
 # Use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html; this is expected for Meteor 1.10.2
 FROM node:12.16.1-buster-slim as rocketbuild
@@ -34,7 +42,6 @@ RUN groupadd -g 65533 -r rocketchat \
 #RUN bash "$SCRIPTS_FOLDER"/build-meteor-npm-dependencies.sh
 
 # Start app
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-get install -y --no-install-recommends g++ make python ca-certificates \
     && cd /"$APP_BUNDLE_FOLDER"/bundle/programs/server \
