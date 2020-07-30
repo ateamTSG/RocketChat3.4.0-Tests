@@ -8,15 +8,15 @@ RUN mkdir -p /tmp/builder
 COPY ./package*.json /tmp/builder
 
 # Install dependencies
-RUN cd /tmp/builder /
+RUN cd /tmp/builder \
     && meteor npm ci
 
 # Copy app source into container
 COPY . /tmp/builder
 
 # Build meteor bundle
-RUN mkdir -p /tmp/appbundle /
-    && cd /tmp/builder /
+RUN mkdir -p /tmp/appbundle \
+    && cd /tmp/builder \
     && meteor build --directory /tmp/appbundle --server-only
 
 # Use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html; this is expected for Meteor 1.10.2
@@ -27,7 +27,7 @@ COPY --from=0 /tmp/appbundle /app
 
 RUN groupadd -g 65533 -r rocketchat \
     && useradd -u 65533 -r -g rocketchat rocketchat \
-    && mkdir -p /app/uploads / 
+    && mkdir -p /app/uploads \
     && chown rocketchat:rocketchat /app/uploads \
     && apt-get update \
     && apt-get install -y --no-install-recommends fontconfig
@@ -35,7 +35,7 @@ RUN groupadd -g 65533 -r rocketchat \
 # Start app
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-get install -y --no-install-recommends g++ make python ca-certificates \
-    && cd /app/bundle/programs/server /
+    && cd /app/bundle/programs/server \
     && npm install \
     && apt-mark auto '.*' > /dev/null \
     && apt-mark manual $aptMark > /dev/null \
