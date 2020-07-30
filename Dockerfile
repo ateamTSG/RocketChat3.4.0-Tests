@@ -9,7 +9,7 @@ COPY . /tmp/builder/
 
 # Install dependencies
 RUN cd /tmp/builder \
-    && meteor npm ci
+    && meteor npm ci --silent
 
 # Build meteor bundle
 RUN mkdir -p /tmp/appbundle \
@@ -33,7 +33,7 @@ RUN groupadd -g 65533 -r rocketchat \
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-get install -y --no-install-recommends g++ make python ca-certificates \
     && cd /app/bundle/programs/server \
-    && npm install \
+    && npm install --silent \
     && apt-mark auto '.*' > /dev/null \
     && apt-mark manual $aptMark > /dev/null \
     && find /usr/local -type f -executable -exec ldd '{}' ';' \
