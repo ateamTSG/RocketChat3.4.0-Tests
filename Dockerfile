@@ -5,7 +5,7 @@ LABEL maintainer="lior@haim.hagever"
 RUN mkdir -p /tmp/builder
 
 # Copy app package.json and package-lock.json into container
-COPY ./package*.json /tmp/builder
+COPY ./package*.json /tmp/builder/
 
 # Install dependencies
 RUN cd /tmp/builder \
