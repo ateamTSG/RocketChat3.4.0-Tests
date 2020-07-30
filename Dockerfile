@@ -1,41 +1,41 @@
 FROM geoffreybooth/meteor-base:1.10.2
 
+LABEL maintainer="lior@haim.hagever
+
+RUN mkdir -p /tmp/builder
+
 # Copy app package.json and package-lock.json into container
-#COPY ./package*.json $APP_SOURCE_FOLDER/
+COPY ./package*.json /tmp/builder
+
+# Install dependencies
+RUN cd /tmp/builder /
+    && meteor npm ci
 
 # Copy app source into container
-COPY . ${APP_SOURCE_FOLDER}
+COPY . /tmp/builder
 
-RUN bash ${SCRIPTS_FOLDER}/build-app-npm-dependencies.sh
-
-RUN bash ${SCRIPTS_FOLDER}/build-meteor-bundle.sh
+# Build meteor bundle
+RUN mkdir -p /tmp/appbundle /
+    && cd /tmp/builder /
+    && meteor build --directory /tmp/appbundle --server-only
 
 # Use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html; this is expected for Meteor 1.10.2
 FROM node:12.16.1-buster-slim
-    
-ENV APP_BUNDLE_FOLDER /opt/bundle
-ENV SCRIPTS_FOLDER /docker
-
-# Copy in entrypoint
-COPY --from=0 ${SCRIPTS_FOLDER} ${SCRIPTS_FOLDER}
 
 # Copy in app bundle
-COPY --from=0 ${APP_BUNDLE_FOLDER}/bundle ${APP_BUNDLE_FOLDER}/bundle/
+COPY --from=0 /tmp/appbundle /app
 
 RUN groupadd -g 65533 -r rocketchat \
     && useradd -u 65533 -r -g rocketchat rocketchat \
-    && mkdir -p ${APP_BUNDLE_FOLDER}/uploads \
-    && chown rocketchat:rocketchat ${APP_BUNDLE_FOLDER}/uploads \
+    && mkdir -p /app/uploads / 
+    && chown rocketchat:rocketchat /app/uploads \
     && apt-get update \
-    && apt-get install -y --no-install-recommends fontconfig \
-    && rm -rf /var/lib/apt/lists/*
-
-# RUN bash ${SCRIPTS_FOLDER}/build-meteor-npm-dependencies.sh
+    && apt-get install -y --no-install-recommends fontconfig
 
 # Start app
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-get install -y --no-install-recommends g++ make python ca-certificates \
-    && cd ${APP_BUNDLE_FOLDER}/programs/server \
+    && cd /app/bundle/programs/server /
     && npm install \
     && apt-mark auto '.*' > /dev/null \
     && apt-mark manual $aptMark > /dev/null \
@@ -48,13 +48,13 @@ RUN aptMark="$(apt-mark showmanual)" \
        | xargs -r apt-mark manual \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && npm cache clear --force \
-    && chown -R rocketchat:rocketchat ${APP_BUNDLE_FOLDER}
+    && chown -R rocketchat:rocketchat /app
 
 USER rocketchat
 
-VOLUME ${APP_BUNDLE_FOLDER}/uploads
+VOLUME /app/uploads/
 
-WORKDIR ${APP_BUNDLE_FOLDER}
+WORKDIR /app/bundle
 
 # needs a mongoinstance - defaults to container linking with alias 'mongo'
 ENV DEPLOY_METHOD=docker \
@@ -63,7 +63,7 @@ ENV DEPLOY_METHOD=docker \
     HOME=/tmp \
     PORT=3000 \
     ROOT_URL=http://localhost:3000 \
-    Accounts_AvatarStorePath=${APP_BUNDLE_FOLDER}/uploads
+    Accounts_AvatarStorePath=/app/uploads
 
 EXPOSE 3000
 
