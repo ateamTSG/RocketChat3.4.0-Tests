@@ -4,15 +4,12 @@ LABEL maintainer="lior@haim.hagever"
 
 RUN mkdir -p /tmp/builder
 
-# Copy app package.json and package-lock.json into container
-COPY ./package*.json /tmp/builder/
+# Copy app source into container
+COPY . /tmp/builder/
 
 # Install dependencies
 RUN cd /tmp/builder \
     && meteor npm ci
-
-# Copy app source into container
-COPY . /tmp/builder
 
 # Build meteor bundle
 RUN mkdir -p /tmp/appbundle \
