@@ -1,26 +1,31 @@
-FROM geoffreybooth/meteor-base:1.10.2
+FROM geoffreybooth/meteor-base:1.10.2 as base
 
 LABEL maintainer="lior@haim.com" 
 
 RUN mkdir -p /tmp/builder
 
+WORKDIR /tmp/builder
+
+# Copy all dependencies 
+COPY package.json .
+COPY ./scripts .scripts/
+
+# Install meteor build dependencies
+RUN mkdir -p app/katex
+RUN meteor npm ci --silent
+
 # Copy app source into container
 COPY . /tmp/builder/
 
-# Install dependencies
-RUN cd /tmp/builder \
-    && meteor npm ci --silent
-
 # Build meteor bundle
 RUN mkdir -p /tmp/appbundle \
-    && cd /tmp/builder \
     && meteor build --directory /tmp/appbundle --server-only
 
 # Use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html; this is expected for Meteor 1.10.2
-FROM node:12.16.1-buster-slim
+FROM node:12.16.1-buster-slim as preps
 
 # Copy in app bundle
-COPY --from=0 /tmp/appbundle /app
+COPY --from=base /tmp/appbundle /app
 
 RUN groupadd -g 65533 -r rocketchat \
     && useradd -u 65533 -r -g rocketchat rocketchat \
@@ -30,10 +35,14 @@ RUN groupadd -g 65533 -r rocketchat \
     && apt-get install -y --no-install-recommends fontconfig
 
 # Start app
+RUN apt-get install -y --no-install-recommends g++ make python ca-certificates
+
+WORKDIR /app/bundle/programs/server
+
+# Install app runtime dependencies
+RUN npm install --silent
+
 RUN aptMark="$(apt-mark showmanual)" \
-    && apt-get install -y --no-install-recommends g++ make python ca-certificates \
-    && cd /app/bundle/programs/server \
-    && npm install --silent \
     && apt-mark auto '.*' > /dev/null \
     && apt-mark manual $aptMark > /dev/null \
     && find /usr/local -type f -executable -exec ldd '{}' ';' \
@@ -45,7 +54,12 @@ RUN aptMark="$(apt-mark showmanual)" \
        | xargs -r apt-mark manual \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && npm cache clear --force \
-    && chown -R rocketchat:rocketchat /app
+    && chown -R rocketchat:rocketchat /app \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM preps as final
+
+#COPY --from=preps /app /app
 
 USER rocketchat
 
