@@ -7,9 +7,10 @@ RUN mkdir -p /tmp/builder
 WORKDIR /tmp/builder
 
 # Copy all dependencies 
-RUN mkdir .scripts
+RUN mkdir .scripts \
+    && mkdir -p app/katex
+
 COPY .scripts .scripts/
-RUN mkdir -p app/katex
 
 # Install meteor build dependencies
 COPY package.json .
