@@ -8,11 +8,12 @@ WORKDIR /tmp/builder
 
 # Copy all dependencies 
 RUN mkdir .scripts
-COPY package.json .
 COPY .scripts .scripts/
+RUN mkdir -p app/katex
 
 # Install meteor build dependencies
-RUN mkdir -p app/katex
+COPY package.json .
+COPY package-lock.json .
 RUN meteor npm ci --silent
 
 # Copy app source into container
