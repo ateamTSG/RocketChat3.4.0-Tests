@@ -34,10 +34,10 @@ RUN groupadd -g 65533 -r rocketchat \
     && mkdir -p /app/uploads \
     && chown rocketchat:rocketchat /app/uploads \
     && apt-get update \
-    && apt-get install -y --no-install-recommends fontconfig
+    && apt-get install -y --no-install-recommends fontconfig g++ make python ca-certificates
 
 # Start app
-RUN apt-get install -y --no-install-recommends g++ make python ca-certificates
+#RUN apt-get install -y --no-install-recommends g++ make python ca-certificates
 
 WORKDIR /app/bundle/programs/server
 
@@ -55,7 +55,7 @@ RUN aptMark="$(apt-mark showmanual)" \
        | sort -u \
        | xargs -r apt-mark manual \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-    && npm cache clear --force \
+    && npm cache clean --force \
     && chown -R rocketchat:rocketchat /app \
     && rm -rf /var/lib/apt/lists/*
 
