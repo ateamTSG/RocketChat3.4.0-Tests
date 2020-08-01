@@ -7,6 +7,7 @@ RUN mkdir -p /tmp/builder
 WORKDIR /tmp/builder
 
 # Copy all dependencies 
+RUN mkdir .scripts
 COPY package.json .
 COPY ./scripts .scripts/
 
