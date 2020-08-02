@@ -9,7 +9,7 @@ WORKDIR /tmp/builder
 # Prepareations for meteor npm install
 RUN mkdir -p app/katex
 COPY .scripts .scripts/
-COPY package*.json .
+COPY package*.json ./
 
 # Install meteor npm dependencies
 RUN meteor npm ci --only=production
