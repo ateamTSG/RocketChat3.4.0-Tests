@@ -6,18 +6,15 @@ RUN mkdir -p /tmp/builder
 
 WORKDIR /tmp/builder
 
-# Copy all dependencies 
-RUN mkdir .scripts \
-    && mkdir -p app/katex
-
+# Prepareations for meteor npm install
+RUN mkdir -p app/katex
 COPY .scripts .scripts/
+COPY package*.json .
 
-# Install meteor build dependencies
-COPY package.json .
-COPY package-lock.json .
-RUN meteor npm ci --silent
+# Install meteor npm dependencies
+RUN meteor npm ci --only=production
 
-# Copy app source into container
+# Copy all app source files into container
 COPY . /tmp/builder/
 
 # Build meteor bundle
@@ -37,13 +34,10 @@ RUN groupadd -g 65533 -r rocketchat \
     && apt-get update \
     && apt-get install -y --no-install-recommends fontconfig g++ make python ca-certificates
 
-# Start app
-#RUN apt-get install -y --no-install-recommends g++ make python ca-certificates
-
 WORKDIR /app/bundle/programs/server
 
 # Install app runtime dependencies
-RUN npm install --silent
+RUN npm install --silent --only=production
 
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-mark auto '.*' > /dev/null \
@@ -61,8 +55,6 @@ RUN aptMark="$(apt-mark showmanual)" \
     && rm -rf /var/lib/apt/lists/*
 
 FROM preps as final
-
-#COPY --from=preps /app /app
 
 USER rocketchat
 
