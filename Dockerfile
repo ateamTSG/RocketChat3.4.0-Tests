@@ -12,7 +12,7 @@ COPY .scripts .scripts/
 COPY package*.json ./
 
 # Install meteor npm dependencies
-RUN meteor npm ci --only=production
+RUN meteor npm ci --quiet --no-progress
 
 # Copy all app source files into container
 COPY . /tmp/builder/
@@ -37,7 +37,7 @@ RUN groupadd -g 65533 -r rocketchat \
 WORKDIR /app/bundle/programs/server
 
 # Install app runtime dependencies
-RUN npm install --silent --only=production
+RUN npm install --quiet --no-progress --only=production
 
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-mark auto '.*' > /dev/null \
