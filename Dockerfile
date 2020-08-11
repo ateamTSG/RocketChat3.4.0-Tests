@@ -1,6 +1,6 @@
 FROM geoffreybooth/meteor-base:1.10.2 as base
 
-LABEL maintainer="lior@haim.com" 
+LABEL maintainer="ateam@tsgitsystems.com" 
 
 RUN mkdir -p /tmp/builder
 
